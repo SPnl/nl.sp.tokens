@@ -58,7 +58,7 @@ class CRM_Tokens_Membership {
   public function contribution($mtype_id, $key, &$values, $cids, $job = null, $tokens = array(), $context = null) { 
     foreach($cids as $cid) {
       $values[$cid]['membership.'.$key] = 'Onbekend';
-      $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id);
+      $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id, false);
       $sql = "SELECT MAX(`c`.`receive_date`), `c`.* FROM `civicrm_membership_payment` `m`
           INNER JOIN `civicrm_contribution` `c` ON `m`.`contribution_id` = `c`.`id`
           WHERE `m`.`membership_id` = %1
@@ -74,7 +74,7 @@ class CRM_Tokens_Membership {
         
     foreach($cids as $cid) {
       $values[$cid]['membership.'.$key] = '';
-      $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id);
+      $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id, false);
       $mandaat = $this->findMandaat($membership['id']);
       if ($mandaat) {
         $values[$cid]['membership.'.$key] = $mandaat['mandaat_nr'];
@@ -86,7 +86,7 @@ class CRM_Tokens_Membership {
         
     foreach($cids as $cid) {
       $values[$cid]['membership.'.$key] = '';
-      $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id);
+      $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id, false);
       $mandaat = $this->findMandaat($membership['id']);
       if ($mandaat) {
         $values[$cid]['membership.'.$key] = $mandaat['IBAN'];
@@ -99,7 +99,7 @@ class CRM_Tokens_Membership {
     
     foreach($cids as $cid) {
       $values[$cid]['membership.'.$key] = '';
-      $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id);
+      $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id, false);
       $mandaat = $this->findMandaat($membership['id']);
       if ($mandaat) {
         $values[$cid]['membership.'.$key] = CRM_Utils_Date::customFormat($mandaat['mandaat_datum'], $config->dateformatFull);
