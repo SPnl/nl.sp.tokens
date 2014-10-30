@@ -11,6 +11,8 @@ function tokens_civicrm_tokens(&$tokens) {
     $tokens['sp']['sp.afdeling_adres'] = 'Adres van afdeling';
     $tokens['sp']['sp.afdeling_telefoon'] = 'Telfoon van afdeling';
   }
+  
+  CRM_Tokens_Membership::tokens($tokens);
 }
 
 function tokens_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = array(), $context = null) {  
@@ -24,6 +26,9 @@ function tokens_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = arra
   }
   $sp_tokens = CRM_Tokens_Afdeling::singleton();
   $sp_tokens->tokenValues($values, $cids, $job, $tokens, $context);
+  
+  $membership_tokens = CRM_Tokens_Membership::singleton();
+  $membership_tokens->tokenValues($values, $cids, $job, $tokens, $context);
   
 }
 
