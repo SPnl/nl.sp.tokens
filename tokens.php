@@ -6,12 +6,7 @@ function tokens_civicrm_tokens(&$tokens) {
   $tokens['tokens']['tokens.contact_id'] = 'Contact ID';
   $tokens['tokens']['tokens.contact_id'] = 'Date of Today';
   
-  if (class_exists('CRM_Geostelsel_Config')) {
-    $tokens['sp']['sp.afdeling_naam'] = 'Naam van afdeling';
-    $tokens['sp']['sp.afdeling_adres'] = 'Adres van afdeling';
-    $tokens['sp']['sp.afdeling_telefoon'] = 'Telfoon van afdeling';
-  }
-  
+  CRM_Tokens_Afdeling::tokens($tokens);  
   CRM_Tokens_Membership::tokens($tokens);
 }
 

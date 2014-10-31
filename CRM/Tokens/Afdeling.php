@@ -10,8 +10,22 @@ class CRM_Tokens_Afdeling {
   
   protected $phone = array();
   
+  protected $website = array();
+  
+  protected $email = array();
+  
   protected function __construct() {
     
+  }
+  
+  public static function tokens(&$tokens) { 
+    if (class_exists('CRM_Geostelsel_Config')) {
+      $tokens['sp']['sp.afdeling_naam'] = 'Naam van afdeling';
+      $tokens['sp']['sp.afdeling_adres'] = 'Adres van afdeling';
+      $tokens['sp']['sp.afdeling_email'] = 'E-mailadres van afdeling';
+      $tokens['sp']['sp.afdeling_telefoon'] = 'Telfoon van afdeling';
+      $tokens['sp']['sp.afdeling_website'] = 'Website van afdeling';
+    }
   }
   
   public function afdeling_naam(&$values, $cids, $job = null, $tokens = array(), $context = null) { 
@@ -53,6 +67,34 @@ class CRM_Tokens_Afdeling {
     }
   }
   
+  public function afdeling_email(&$values, $cids, $job = null, $tokens = array(), $context = null) { 
+    $this->findAfdelingForContact($cids);
+    foreach($cids as $cid) {
+      $values[$cid]['sp.afdeling_email'] = '';
+      //find afdeling
+      if (isset($this->afdeling[$cid])) {
+        $email = $this->findEmail($this->afdeling[$cid]);
+        if (!empty($email)) {
+          $values[$cid]['sp.afdeling_email'] = $email;
+        }  
+      }
+    }
+  }
+  
+  public function afdeling_website(&$values, $cids, $job = null, $tokens = array(), $context = null) { 
+    $this->findAfdelingForContact($cids);
+    foreach($cids as $cid) {
+      $values[$cid]['sp.afdeling_website'] = '';
+      //find afdeling
+      if (isset($this->afdeling[$cid])) {
+        $website = $this->findWebsite($this->afdeling[$cid]);
+        if (!empty($website)) {
+          $values[$cid]['sp.afdeling_website'] = $website;
+        }  
+      }
+    }
+  }
+  
   public function tokenValues(&$values, $cids, $job = null, $tokens = array(), $context = null) {
     if (!empty($tokens['sp'])) {
       if (in_array('afdeling_naam', $tokens['sp'])) {
@@ -63,6 +105,12 @@ class CRM_Tokens_Afdeling {
       }
       if (in_array('afdeling_telefoon', $tokens['sp'])) {
          $this->afdeling_telefoon($values, $cids, $job, $tokens, $context);
+      }
+      if (in_array('afdeling_email', $tokens['sp'])) {
+         $this->afdeling_email($values, $cids, $job, $tokens, $context);
+      }
+      if (in_array('afdeling_website', $tokens['sp'])) {
+         $this->afdeling_website($values, $cids, $job, $tokens, $context);
       }
     }
   }
@@ -92,6 +140,37 @@ class CRM_Tokens_Afdeling {
       $this->phone[$contact_id] = $phone->phone;
     }
     return $this->phone[$contact_id];
+  }
+  
+  protected function findEmail($contact_id) {
+    if (isset($this->email[$contact_id])) {
+      return $this->email[$contact_id];
+    }
+    
+    $this->email[$contact_id] = false;
+    
+    $email = new CRM_Core_BAO_Email();
+    $email->contact_id = $contact_id;
+    $email->is_primary = 1;
+    if ($email->find(true)) {
+      $this->email[$contact_id] = $email->email;
+    }
+    return $this->email[$contact_id];
+  }
+  
+  protected function findWebsite($contact_id) {
+    if (isset($this->website[$contact_id])) {
+      return $this->website[$contact_id];
+    }
+    
+    $this->website[$contact_id] = false;
+    
+    $website = new CRM_Core_BAO_Website();
+    $website->contact_id = $contact_id;
+    if ($website->find(true)) {
+      $this->website[$contact_id] = $website->email;
+    }
+    return $this->website[$contact_id];
   }
   
   protected function findAddress($contact_id) {

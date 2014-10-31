@@ -29,6 +29,7 @@ class CRM_Tokens_Membership {
         $tokens['membership']['membership.'.$mid.'_mandaat_id'] = 'Mandaat ID ('.$name.')';
         $tokens['membership']['membership.'.$mid.'_mandaat_datum'] = 'Mandaat Datum ('.$name.')';
         $tokens['membership']['membership.'.$mid.'_mandaat_iban'] = 'Mandaat IBAN ('.$name.')';
+        $tokens['membership']['membership.'.$mid.'_mandaat_type'] = 'Mandaat Type ('.$name.')';
       }
     }
   }
@@ -50,6 +51,9 @@ class CRM_Tokens_Membership {
         }
         if ($token == 'mandaat_iban') { 
           $this->mandaat_iban_tokens($mid, $key, $values, $cids, $job, $tokens, $context);
+        }
+        if ($token == 'mandaat_type') { 
+          $this->mandaat_typetokens($mid, $key, $values, $cids, $job, $tokens, $context);
         }
       }
     }
@@ -78,6 +82,22 @@ class CRM_Tokens_Membership {
       $mandaat = $this->findMandaat($membership['id']);
       if ($mandaat) {
         $values[$cid]['membership.'.$key] = $mandaat['mandaat_nr'];
+      }
+    }
+  }
+  
+  public function mandaat_type_tokens($mtype_id, $key, &$values, $cids, $job = null, $tokens = array(), $context = null) { 
+        
+    foreach($cids as $cid) {
+      $values[$cid]['membership.'.$key] = '';
+      $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id, false);
+      $mandaat = $this->findMandaat($membership['id']);
+      if ($mandaat) {
+        if ($mandaat['status'] === 'OOFF') {
+          $values[$cid]['membership.'.$key] = 'Eenmalig';
+        } else {
+          $values[$cid]['membership.'.$key] = 'Doorlopend';
+        }        
       }
     }
   }
