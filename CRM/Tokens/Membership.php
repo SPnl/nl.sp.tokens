@@ -79,7 +79,10 @@ class CRM_Tokens_Membership {
     foreach($cids as $cid) {
       $values[$cid]['membership.'.$key] = '';
       $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id, false);
-      $mandaat = $this->findMandaat($membership['id']);
+      $mandaat = false;
+      if (!empty($membership['id'])) {
+        $mandaat = $this->findMandaat($membership['id']);
+      }
       if ($mandaat) {
         $values[$cid]['membership.'.$key] = $mandaat['mandaat_nr'];
       }
@@ -91,7 +94,10 @@ class CRM_Tokens_Membership {
     foreach($cids as $cid) {
       $values[$cid]['membership.'.$key] = '';
       $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id, false);
-      $mandaat = $this->findMandaat($membership['id']);
+      $mandaat = false;
+      if (!empty($membership['id'])) {
+        $mandaat = $this->findMandaat($membership['id']);
+      }
       if ($mandaat) {
         if ($mandaat['status'] === 'OOFF') {
           $values[$cid]['membership.'.$key] = 'Eenmalig';
@@ -107,7 +113,10 @@ class CRM_Tokens_Membership {
     foreach($cids as $cid) {
       $values[$cid]['membership.'.$key] = '';
       $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id, false);
-      $mandaat = $this->findMandaat($membership['id']);
+      $mandaat = false;
+      if (!empty($membership['id'])) {
+        $mandaat = $this->findMandaat($membership['id']);
+      }
       if ($mandaat) {
         $values[$cid]['membership.'.$key] = $mandaat['IBAN'];
       }
@@ -121,7 +130,7 @@ class CRM_Tokens_Membership {
       $values[$cid]['membership.'.$key] = '';
       $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id, false);
       $mandaat = false;
-      if (!empty($membership['id']) && is_int($membership['id'])) {
+      if (!empty($membership['id'])) {
         $mandaat = $this->findMandaat($membership['id']);
       }
       
