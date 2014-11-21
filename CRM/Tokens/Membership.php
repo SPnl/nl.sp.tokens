@@ -121,7 +121,7 @@ class CRM_Tokens_Membership {
       $values[$cid]['membership.'.$key] = '';
       $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id, false);
       $mandaat = false;
-      if (!empty($membership['id'])) {
+      if (!empty($membership['id']) && is_int($membership['id'])) {
         $mandaat = $this->findMandaat($membership['id']);
       }
       
