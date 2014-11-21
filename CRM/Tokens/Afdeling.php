@@ -97,19 +97,19 @@ class CRM_Tokens_Afdeling {
   
   public function tokenValues(&$values, $cids, $job = null, $tokens = array(), $context = null) {
     if (!empty($tokens['sp'])) {
-      if (in_array('afdeling_naam', $tokens['sp'])) {
+      if (in_array('afdeling_naam', $tokens['sp']) || array_key_exists('afdeling_naam', $tokens['sp'])) {
          $this->afdeling_naam($values, $cids, $job, $tokens, $context);
       }
-      if (in_array('afdeling_adres', $tokens['sp'])) {
+      if (in_array('afdeling_adres', $tokens['sp']) || array_key_exists('afdeling_adres', $tokens['sp'])) {
          $this->afdeling_adres($values, $cids, $job, $tokens, $context);
       }
-      if (in_array('afdeling_telefoon', $tokens['sp'])) {
+      if (in_array('afdeling_telefoon', $tokens['sp']) || array_key_exists('afdeling_telefoon', $tokens['sp'])) {
          $this->afdeling_telefoon($values, $cids, $job, $tokens, $context);
       }
-      if (in_array('afdeling_email', $tokens['sp'])) {
+      if (in_array('afdeling_email', $tokens['sp']) || array_key_exists('afdeling_email', $tokens['sp'])) {
          $this->afdeling_email($values, $cids, $job, $tokens, $context);
       }
-      if (in_array('afdeling_website', $tokens['sp'])) {
+      if (in_array('afdeling_website', $tokens['sp']) || array_key_exists('afdeling_website', $tokens['sp'])) {
          $this->afdeling_website($values, $cids, $job, $tokens, $context);
       }
     }

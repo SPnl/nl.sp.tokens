@@ -36,10 +36,15 @@ class CRM_Tokens_Membership {
   
   public function tokenValues(&$values, $cids, $job = null, $tokens = array(), $context = null) {
     if (!empty($tokens['membership'])) {
-      foreach($tokens['membership'] as $key) {
+      foreach($tokens['membership'] as $k => $i) {
+        $key = $i;
+        if (is_int($i)) {
+          $key = $k;
+        }
         $und_pos = stripos($key, "_");
         $mid = substr($key, 0, $und_pos);
         $token = substr($key, $und_pos+1);
+        
         if ($token == 'contribution') {
           $this->contribution($mid, $key, $values, $cids, $job, $tokens, $context);
         }
@@ -75,7 +80,6 @@ class CRM_Tokens_Membership {
   }
   
   public function mandaat_id_tokens($mtype_id, $key, &$values, $cids, $job = null, $tokens = array(), $context = null) { 
-        
     foreach($cids as $cid) {
       $values[$cid]['membership.'.$key] = '';
       $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id, false);
