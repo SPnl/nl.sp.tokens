@@ -65,16 +65,19 @@ class CRM_Tokens_Membership {
   }
   
   public function contribution($mtype_id, $key, &$values, $cids, $job = null, $tokens = array(), $context = null) { 
-    foreach($cids as $cid) {
-      $values[$cid]['membership.'.$key] = 'Onbekend';
-      $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id, false);
-      $sql = "SELECT MAX(`c`.`receive_date`), `c`.* FROM `civicrm_membership_payment` `m`
+    $sql = "SELECT MAX(`c`.`receive_date`), `c`.* FROM `civicrm_membership_payment` `m`
           INNER JOIN `civicrm_contribution` `c` ON `m`.`contribution_id` = `c`.`id`
           WHERE `m`.`membership_id` = %1
           LIMIT 1";
-      $dao = CRM_Core_DAO::executeQuery($sql, array(1 => array($membership['id'], 'Integer')));
-      if ($dao->fetch()) {
-        $values[$cid]['membership.'.$key] = CRM_Utils_Money::format($dao->total_amount, $dao->currency);
+    
+    foreach($cids as $cid) {
+      $values[$cid]['membership.'.$key] = 'Onbekend';
+      $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id, false);      
+      if (!empty($membership['id'])) {
+        $dao = CRM_Core_DAO::executeQuery($sql, array(1 => array($membership['id'], 'Integer')));
+        if ($dao->fetch()) {
+          $values[$cid]['membership.'.$key] = CRM_Utils_Money::format($dao->total_amount, $dao->currency);
+        }
       }
     }
   }
@@ -147,6 +150,10 @@ class CRM_Tokens_Membership {
   protected function findMandaat($membership_id) {
     if (isset($this->mandaat[$membership_id])) {
       return $this->mandaat[$membership_id];
+    }
+    
+    if (empty($membership_id)) {
+        return false;
     }
     
     $sepa_config = CRM_Sepamandaat_Config_SepaMandaat::singleton();
