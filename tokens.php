@@ -4,7 +4,7 @@ require_once 'tokens.civix.php';
 
 function tokens_civicrm_tokens(&$tokens) {
   $tokens['tokens']['tokens.contact_id'] = 'Contact ID';
-  $tokens['tokens']['tokens.contact_id'] = 'Date of Today';
+  $tokens['tokens']['tokens.today'] = 'Date of Today';
   
   CRM_Tokens_Afdeling::tokens($tokens);  
   CRM_Tokens_Membership::tokens($tokens);
