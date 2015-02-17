@@ -5,9 +5,17 @@ class CRM_Tokens_Membership {
   protected static $singleton;
   
   protected $mandaat = array();
+
+  protected $sp_mid;
+
+  protected $sprood_mid;
+
+  protected $rood_mid;
   
   protected function __construct() {
-    
+    $this->sp_mid = civicrm_api3('MembershipType', 'getvalue', array('return' => 'id', 'name' => 'Lid SP'));
+    $this->sprood_mid = civicrm_api3('MembershipType', 'getvalue', array('return' => 'id', 'name' => 'Lid SP en ROOD'));
+    $this->rood_mid = civicrm_api3('MembershipType', 'getvalue', array('return' => 'id', 'name' => 'Lid ROOD'));
   }
   
   /**
@@ -25,11 +33,17 @@ class CRM_Tokens_Membership {
     $membership_types = self::membershipTypes();
     foreach($membership_types as $mid => $name) {    
       $tokens['membership']['membership.'.$mid.'_contribution'] = 'Membership fee ('.$name.')';
+      $tokens['membership']['membership.contribution'] = 'Membership fee';
       if (class_exists('CRM_Sepamandaat_Config_SepaMandaat')) {
         $tokens['membership']['membership.'.$mid.'_mandaat_id'] = 'Mandaat ID ('.$name.')';
         $tokens['membership']['membership.'.$mid.'_mandaat_datum'] = 'Mandaat Datum ('.$name.')';
         $tokens['membership']['membership.'.$mid.'_mandaat_iban'] = 'Mandaat IBAN ('.$name.')';
         $tokens['membership']['membership.'.$mid.'_mandaat_type'] = 'Mandaat Type ('.$name.')';
+
+        $tokens['membership']['membership.mandaat_id'] = 'Mandaat ID';
+        $tokens['membership']['membership.mandaat_datum'] = 'Mandaat Datum';
+        $tokens['membership']['membership.mandaat_iban'] = 'Mandaat IBAN';
+        $tokens['membership']['membership.mandaat_type'] = 'Mandaat Type';
       }
     }
   }
@@ -43,8 +57,12 @@ class CRM_Tokens_Membership {
         }
         $und_pos = stripos($key, "_");
         $mid = substr($key, 0, $und_pos);
-        $token = substr($key, $und_pos+1);
-        
+        if (empty($mid)) {
+          $token = $key;
+        } else {
+          $token = substr($key, $und_pos + 1);
+        }
+
         if ($token == 'contribution') {
           $this->contribution($mid, $key, $values, $cids, $job, $tokens, $context);
         }
@@ -63,6 +81,30 @@ class CRM_Tokens_Membership {
       }
     }
   }
+
+  protected function getMembership($contact_id, $mtype_id) {
+    if (empty($mtype_id)) {
+      $membership = CRM_Member_BAO_Membership::getContactMembership($contact_id, $this->rood_mid, false);
+      if (!empty($membership) && !empty($membership['id'])) {
+        return $membership['id'];
+      }
+      $membership = CRM_Member_BAO_Membership::getContactMembership($contact_id, $this->sprood_mid, false);
+      if (!empty($membership) && !empty($membership['id'])) {
+        return $membership['id'];
+      }
+      $membership = CRM_Member_BAO_Membership::getContactMembership($contact_id, $this->sp_mid, false);
+      if (!empty($membership) && !empty($membership['id'])) {
+        return $membership['id'];
+      }
+    } else {
+      $membership = CRM_Member_BAO_Membership::getContactMembership($contact_id, $mtype_id, false);
+      if (!empty($membership) && !empty($membership['id'])) {
+        return $membership['id'];
+      }
+    }
+    return false;
+
+  }
   
   public function contribution($mtype_id, $key, &$values, $cids, $job = null, $tokens = array(), $context = null) { 
     $sql = "SELECT MAX(`c`.`receive_date`), `c`.* FROM `civicrm_membership_payment` `m`
@@ -72,9 +114,9 @@ class CRM_Tokens_Membership {
     
     foreach($cids as $cid) {
       $values[$cid]['membership.'.$key] = 'Onbekend';
-      $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id, false);      
-      if (!empty($membership['id'])) {
-        $dao = CRM_Core_DAO::executeQuery($sql, array(1 => array($membership['id'], 'Integer')));
+      $mid = $this->getMembership($cid, $mtype_id);
+      if (!empty($mid)) {
+        $dao = CRM_Core_DAO::executeQuery($sql, array(1 => array($mid, 'Integer')));
         if ($dao->fetch()) {
           $values[$cid]['membership.'.$key] = CRM_Utils_Money::format($dao->total_amount, $dao->currency);
         }
@@ -85,10 +127,10 @@ class CRM_Tokens_Membership {
   public function mandaat_id_tokens($mtype_id, $key, &$values, $cids, $job = null, $tokens = array(), $context = null) { 
     foreach($cids as $cid) {
       $values[$cid]['membership.'.$key] = '';
-      $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id, false);
+      $mid = $this->getMembership($cid, $mtype_id);
       $mandaat = false;
-      if (!empty($membership['id'])) {
-        $mandaat = $this->findMandaat($membership['id']);
+      if (!empty($mid)) {
+        $mandaat = $this->findMandaat($mid);
       }
       if ($mandaat) {
         $values[$cid]['membership.'.$key] = $mandaat['mandaat_nr'];
@@ -100,10 +142,10 @@ class CRM_Tokens_Membership {
         
     foreach($cids as $cid) {
       $values[$cid]['membership.'.$key] = '';
-      $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id, false);
+      $mid = $this->getMembership($cid, $mtype_id);
       $mandaat = false;
-      if (!empty($membership['id'])) {
-        $mandaat = $this->findMandaat($membership['id']);
+      if (!empty($mid)) {
+        $mandaat = $this->findMandaat($mid);
       }
       if ($mandaat) {
         if ($mandaat['status'] === 'OOFF') {
@@ -119,10 +161,10 @@ class CRM_Tokens_Membership {
         
     foreach($cids as $cid) {
       $values[$cid]['membership.'.$key] = '';
-      $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id, false);
+      $mid = $this->getMembership($cid, $mtype_id);
       $mandaat = false;
-      if (!empty($membership['id'])) {
-        $mandaat = $this->findMandaat($membership['id']);
+      if (!empty($mid)) {
+        $mandaat = $this->findMandaat($mid);
       }
       if ($mandaat) {
         $values[$cid]['membership.'.$key] = $mandaat['IBAN'];
@@ -135,12 +177,11 @@ class CRM_Tokens_Membership {
     
     foreach($cids as $cid) {
       $values[$cid]['membership.'.$key] = '';
-      $membership = CRM_Member_BAO_Membership::getContactMembership($cid, $mtype_id, false);
+      $mid = $this->getMembership($cid, $mtype_id);
       $mandaat = false;
-      if (!empty($membership['id'])) {
-        $mandaat = $this->findMandaat($membership['id']);
+      if (!empty($mid)) {
+        $mandaat = $this->findMandaat($mid);
       }
-      
       if ($mandaat) {
         $values[$cid]['membership.'.$key] = CRM_Utils_Date::customFormat($mandaat['mandaat_datum'], $config->dateformatFull);
       }
