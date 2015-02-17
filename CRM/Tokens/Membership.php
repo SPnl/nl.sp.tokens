@@ -57,10 +57,11 @@ class CRM_Tokens_Membership {
         }
         $und_pos = stripos($key, "_");
         $mid = substr($key, 0, $und_pos);
-        if (empty($mid)) {
-          $token = $key;
-        } else {
+        if (!empty($mid) && is_int($mid)) {
           $token = substr($key, $und_pos + 1);
+        } else {
+          unset($mid);
+          $token = $key;
         }
 
         if ($token == 'contribution') {
@@ -103,7 +104,6 @@ class CRM_Tokens_Membership {
       }
     }
     return false;
-
   }
   
   public function contribution($mtype_id, $key, &$values, $cids, $job = null, $tokens = array(), $context = null) { 
@@ -157,8 +157,7 @@ class CRM_Tokens_Membership {
     }
   }
   
-  public function mandaat_iban_tokens($mtype_id, $key, &$values, $cids, $job = null, $tokens = array(), $context = null) { 
-        
+  public function mandaat_iban_tokens($mtype_id, $key, &$values, $cids, $job = null, $tokens = array(), $context = null) {
     foreach($cids as $cid) {
       $values[$cid]['membership.'.$key] = '';
       $mid = $this->getMembership($cid, $mtype_id);
