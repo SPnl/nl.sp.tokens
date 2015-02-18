@@ -69,6 +69,7 @@ class CRM_Tokens_Afdeling {
   
   public function afdeling_email(&$values, $cids, $job = null, $tokens = array(), $context = null) { 
     $this->findAfdelingForContact($cids);
+
     foreach($cids as $cid) {
       $values[$cid]['sp.afdeling_email'] = '';
       //find afdeling
@@ -168,7 +169,7 @@ class CRM_Tokens_Afdeling {
     $website = new CRM_Core_BAO_Website();
     $website->contact_id = $contact_id;
     if ($website->find(true)) {
-      $this->website[$contact_id] = $website->email;
+      $this->website[$contact_id] = $website->url;
     }
     return $this->website[$contact_id];
   }
@@ -204,12 +205,13 @@ class CRM_Tokens_Afdeling {
   }
   
   protected function findAfdelingForContact($cids) {
-    if (is_array($this->afdeling)) {
+    $diff = array_diff(array_values($cids), array_keys($this->afdeling));
+    if (is_array($this->afdeling) && count($diff) == 0) {
       return;
     } else {
       $this->afdeling = array();
     }
-    
+
     $contact_ids = implode(",", $cids);    
     $config = CRM_Geostelsel_Config::singleton();
     $table = $config->getGeostelselCustomGroup('table_name');

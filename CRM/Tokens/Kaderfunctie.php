@@ -231,7 +231,7 @@ class CRM_Tokens_Kaderfunctie {
         $website = new CRM_Core_BAO_Website();
         $website->contact_id = $contact_id;
         if ($website->find(true)) {
-            $this->website[$contact_id] = $website->email;
+            $this->website[$contact_id] = $website->url;
         }
         return $this->website[$contact_id];
     }
@@ -267,7 +267,8 @@ class CRM_Tokens_Kaderfunctie {
     }
 
     protected function findAfdelingForContact($cids) {
-        if (is_array($this->afdeling)) {
+        $diff = array_diff(array_values($cids), array_keys($this->afdeling));
+        if (is_array($this->afdeling) && count($diff) == 0) {
             return;
         } else {
             $this->afdeling = array();
