@@ -184,10 +184,23 @@ class CRM_Tokens_Afdeling {
     $address->contact_id = $contact_id;
     $address->is_primary = 1;
     if ($address->find(true)) {
-      $address->addDisplay();
-      $this->address[$contact_id] = $address->display_text;
+      $this->address[$contact_id] = $this->displayAddress($address);
     }
     return $this->address[$contact_id];
+  }
+
+  protected function displayAddress(CRM_Core_BAO_Address $address) {
+    if (!$address->master_id) {
+      $address->addDisplay();
+      return $address->display_text;
+    } else {
+      $a = new CRM_Core_BAO_Address();
+      $a->id = $address->master_id;
+      if ($a->find(true)) {
+        return $this->displayAddress($a);
+      }
+    }
+    return '';
   }
   
   protected function findAfdelingForContact($cids) {
