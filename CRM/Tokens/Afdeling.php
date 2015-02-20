@@ -13,9 +13,13 @@ class CRM_Tokens_Afdeling {
   protected $website = array();
   
   protected $email = array();
+
+  protected $voorzitter_rel_type_id;
+
+  protected $voorzitter = array();
   
   protected function __construct() {
-    
+    $this->voorzitter_rel_type_id = civicrm_api3('RelationshipType', 'getvalue', array('name_a_b' => 'sprel_voorzitter_afdeling', 'return' => 'id'));
   }
   
   public static function tokens(&$tokens) { 
@@ -126,8 +130,27 @@ class CRM_Tokens_Afdeling {
     }
     return self::$singelton;
   }
+
+  protected function findVoorzitter($contact_id) {
+    if (isset($this->voorzitter[$contact_id])) {
+      return $this->voorzitter[$contact_id];
+    }
+    $this->voorzitter[$contact_id] = false;
+
+    $params['relationship_type_id'] = $this->voorzitter_rel_type_id;
+    $params['contact_id'] = $contact_id;
+    $params['status_id'] = 4; //current active relationships
+    $params['return'] = 'contact_id_a';
+    try {
+      $this->voorzitter[$contact_id] = civicrm_api3('Relationship', 'getvalue', $params);
+    } catch (Exception $e) {
+      //do nothing
+    }
+
+    return $this->voorzitter[$contact_id];
+  }
   
-  protected function findPhone($contact_id) {
+  protected function findPhone($contact_id, $doNotRecurse=false) {
     if (isset($this->phone[$contact_id])) {
       return $this->phone[$contact_id];
     }
@@ -140,10 +163,18 @@ class CRM_Tokens_Afdeling {
     if ($phone->find(true)) {
       $this->phone[$contact_id] = $phone->phone;
     }
+
+    if (empty($this->phone[$contact_id])) {
+      $voorzitter = $this->findVoorzitter($contact_id);
+      if ($voorzitter && !$doNotRecurse) {
+        $this->phone[$contact_id] = $this->findPhone($voorzitter, true);
+      }
+    }
+
     return $this->phone[$contact_id];
   }
   
-  protected function findEmail($contact_id) {
+  protected function findEmail($contact_id, $doNotRecurse=false) {
     if (isset($this->email[$contact_id])) {
       return $this->email[$contact_id];
     }
@@ -156,6 +187,14 @@ class CRM_Tokens_Afdeling {
     if ($email->find(true)) {
       $this->email[$contact_id] = $email->email;
     }
+
+    if (empty($this->email[$contact_id])) {
+      $voorzitter = $this->findVoorzitter($contact_id);
+      if ($voorzitter && !$doNotRecurse) {
+        $this->email[$contact_id] = $this->findEmail($voorzitter, true);
+      }
+    }
+
     return $this->email[$contact_id];
   }
   
@@ -171,6 +210,7 @@ class CRM_Tokens_Afdeling {
     if ($website->find(true)) {
       $this->website[$contact_id] = $website->url;
     }
+
     return $this->website[$contact_id];
   }
   

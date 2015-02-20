@@ -31,10 +31,23 @@ function tokens_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = arra
   
 }
 
-function tokens_today(&$values, $cids, $job = null, $tokens = array(), $context = null) { 
+function tokens_today(&$values, $cids, $job = null, $tokens = array(), $context = null) {
+  $months[1] = 'januari';
+  $months[2] = 'februari';
+  $months[3] = 'maart';
+  $months[4] = 'april';
+  $months[5] = 'mei';
+  $months[6] = 'juni';
+  $months[7] = 'juli';
+  $months[8] = 'augustus';
+  $months[9] = 'september';
+  $months[10] = 'oktober';
+  $months[11] = 'november';
+  $months[12] = 'december';
+
   $date = new DateTime();
   foreach($cids as $cid) {
-    $values[$cid]['tokens.today'] = $date->format('d-m-Y');
+    $values[$cid]['tokens.today'] = $date->format('d').' '.$months[$date->format('n')].' '.$date->format('Y');
   }
 }
 
