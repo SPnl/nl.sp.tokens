@@ -267,7 +267,10 @@ class CRM_Tokens_Kaderfunctie {
     }
 
     protected function findAfdelingForContact($cids) {
-        $diff = array_diff(array_values($cids), array_keys($this->afdeling));
+        $diff = array_values($cids);
+        if (is_array($this->afdeling)) {
+            $diff = array_diff(array_values($cids), array_keys($this->afdeling));
+        }
         if (is_array($this->afdeling) && count($diff) == 0) {
             return;
         } else {
