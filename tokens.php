@@ -13,10 +13,10 @@ function tokens_civicrm_tokens(&$tokens) {
 
 function tokens_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = array(), $context = null) {  
   if (!empty($tokens['tokens'])) {
-    if (in_array('contact_id', $tokens['contact'])) {
+    if (in_array('contact_id', $tokens['tokens']) || array_key_exists('contact_id', $tokens['tokens'])) {
        tokens_contact_id($values, $cids, $job, $tokens, $context);
     }
-    if (in_array('today', $tokens['tokens'])) {
+    if (in_array('today', $tokens['tokens']) || array_key_exists('today', $tokens['tokens'])) {
        tokens_today($values, $cids, $job, $tokens, $context);
     }
   }
