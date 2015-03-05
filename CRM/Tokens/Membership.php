@@ -85,25 +85,47 @@ class CRM_Tokens_Membership {
 
   protected function getMembership($contact_id, $mtype_id) {
     if (empty($mtype_id)) {
-      $membership = CRM_Member_BAO_Membership::getContactMembership($contact_id, $this->rood_mid, false);
+      $membership = $this->getContactMembership($contact_id, $this->rood_mid);
       if (!empty($membership) && !empty($membership['id'])) {
         return $membership['id'];
       }
-      $membership = CRM_Member_BAO_Membership::getContactMembership($contact_id, $this->sprood_mid, false);
+      $membership = $this->getContactMembership($contact_id, $this->sprood_mid);
       if (!empty($membership) && !empty($membership['id'])) {
         return $membership['id'];
       }
-      $membership = CRM_Member_BAO_Membership::getContactMembership($contact_id, $this->sp_mid, false);
+      $membership = $this->getContactMembership($contact_id, $this->sp_mid);
       if (!empty($membership) && !empty($membership['id'])) {
         return $membership['id'];
       }
     } else {
-      $membership = CRM_Member_BAO_Membership::getContactMembership($contact_id, $mtype_id, false);
+      $membership = $this->getContactMembership($contact_id, $mtype_id);
       if (!empty($membership) && !empty($membership['id'])) {
         return $membership['id'];
       }
     }
     return false;
+  }
+
+  protected function getContactMembership($contact_id, $mtype_id) {
+    $dao = new CRM_Member_DAO_Membership();
+    $dao->contact_id = $contact_id;
+    $dao->membership_type_id = $mtype_id;
+    $dao->whereAdd('is_test IS NULL OR is_test = 0');
+
+    $dao->whereAdd("status_id IN (".implode(", ",CRM_Member_BAO_MembershipStatus::getMembershipStatusCurrent()).")");
+
+    // order by start date to find most recent membership first, CRM-4545
+    $dao->orderBy('start_date DESC');
+
+    if ($dao->find(TRUE)) {
+      $membership = array();
+      CRM_Core_DAO::storeValues($dao, $membership);
+      $membership['is_current_member'] = CRM_Core_DAO::getFieldValue('CRM_Member_DAO_MembershipStatus',
+        $membership['status_id'],
+        'is_current_member', 'id'
+      );
+      return $membership;
+    }
   }
   
   public function contribution($mtype_id, $key, &$values, $cids, $job = null, $tokens = array(), $context = null) { 
