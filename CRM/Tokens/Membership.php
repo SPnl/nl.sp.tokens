@@ -57,13 +57,13 @@ class CRM_Tokens_Membership {
         }
         $und_pos = stripos($key, "_");
         $mid = substr($key, 0, $und_pos);
-        if (!empty($mid) && is_int($mid)) {
+        
+        if (!empty($mid) && is_numeric($mid)) {
           $token = substr($key, $und_pos + 1);
         } else {
           unset($mid);
           $token = $key;
         }
-
         if ($token == 'contribution') {
           $this->contribution($mid, $key, $values, $cids, $job, $tokens, $context);
         }
@@ -77,7 +77,7 @@ class CRM_Tokens_Membership {
           $this->mandaat_iban_tokens($mid, $key, $values, $cids, $job, $tokens, $context);
         }
         if ($token == 'mandaat_type') { 
-          $this->mandaat_typetokens($mid, $key, $values, $cids, $job, $tokens, $context);
+          $this->mandaat_type_tokens($mid, $key, $values, $cids, $job, $tokens, $context);
         }
       }
     }
