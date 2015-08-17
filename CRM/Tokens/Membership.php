@@ -34,7 +34,7 @@ class CRM_Tokens_Membership {
     foreach($membership_types as $mid => $name) {    
       $tokens['membership']['membership.'.$mid.'_contribution'] = 'Membership fee ('.$name.')';
       $tokens['membership']['membership.contribution'] = 'Membership fee';
-      if (class_exists('CRM_Sepamandaat_Config_SepaMandaat')) {
+      if (class_exists('CRM_Sepamandaat_Config_SepaMandaat') && CRM_Tokens_AccessControl::accessSepaTokens()) {
         $tokens['membership']['membership.'.$mid.'_mandaat_id'] = 'Mandaat ID ('.$name.')';
         $tokens['membership']['membership.'.$mid.'_mandaat_datum'] = 'Mandaat Datum ('.$name.')';
         $tokens['membership']['membership.'.$mid.'_mandaat_iban'] = 'Mandaat IBAN ('.$name.')';
@@ -149,13 +149,15 @@ class CRM_Tokens_Membership {
   public function mandaat_id_tokens($mtype_id, $key, &$values, $cids, $job = null, $tokens = array(), $context = null) { 
     foreach($cids as $cid) {
       $values[$cid]['membership.'.$key] = '';
-      $mid = $this->getMembership($cid, $mtype_id);
-      $mandaat = false;
-      if (!empty($mid)) {
-        $mandaat = $this->findMandaat($mid);
-      }
-      if ($mandaat) {
-        $values[$cid]['membership.'.$key] = $mandaat['mandaat_nr'];
+      if (CRM_Tokens_AccessControl::accessSepaTokens()) {
+        $mid = $this->getMembership($cid, $mtype_id);
+        $mandaat = FALSE;
+        if (!empty($mid)) {
+          $mandaat = $this->findMandaat($mid);
+        }
+        if ($mandaat) {
+          $values[$cid]['membership.' . $key] = $mandaat['mandaat_nr'];
+        }
       }
     }
   }
@@ -164,17 +166,20 @@ class CRM_Tokens_Membership {
         
     foreach($cids as $cid) {
       $values[$cid]['membership.'.$key] = '';
-      $mid = $this->getMembership($cid, $mtype_id);
-      $mandaat = false;
-      if (!empty($mid)) {
-        $mandaat = $this->findMandaat($mid);
-      }
-      if ($mandaat) {
-        if ($mandaat['status'] === 'OOFF') {
-          $values[$cid]['membership.'.$key] = 'Eenmalig';
-        } else {
-          $values[$cid]['membership.'.$key] = 'Doorlopend';
-        }        
+      if (CRM_Tokens_AccessControl::accessSepaTokens()) {
+        $mid = $this->getMembership($cid, $mtype_id);
+        $mandaat = false;
+        if (!empty($mid)) {
+          $mandaat = $this->findMandaat($mid);
+        }
+        if ($mandaat) {
+          if ($mandaat['status'] === 'OOFF') {
+            $values[$cid]['membership.' . $key] = 'Eenmalig';
+          }
+          else {
+            $values[$cid]['membership.' . $key] = 'Doorlopend';
+          }
+        }
       }
     }
   }
@@ -182,13 +187,15 @@ class CRM_Tokens_Membership {
   public function mandaat_iban_tokens($mtype_id, $key, &$values, $cids, $job = null, $tokens = array(), $context = null) {
     foreach($cids as $cid) {
       $values[$cid]['membership.'.$key] = '';
-      $mid = $this->getMembership($cid, $mtype_id);
-      $mandaat = false;
-      if (!empty($mid)) {
-        $mandaat = $this->findMandaat($mid);
-      }
-      if ($mandaat) {
-        $values[$cid]['membership.'.$key] = $mandaat['IBAN'];
+      if (CRM_Tokens_AccessControl::accessSepaTokens()) {
+        $mid = $this->getMembership($cid, $mtype_id);
+        $mandaat = FALSE;
+        if (!empty($mid)) {
+          $mandaat = $this->findMandaat($mid);
+        }
+        if ($mandaat) {
+          $values[$cid]['membership.' . $key] = $mandaat['IBAN'];
+        }
       }
     }
   }
@@ -198,13 +205,15 @@ class CRM_Tokens_Membership {
     
     foreach($cids as $cid) {
       $values[$cid]['membership.'.$key] = '';
-      $mid = $this->getMembership($cid, $mtype_id);
-      $mandaat = false;
-      if (!empty($mid)) {
-        $mandaat = $this->findMandaat($mid);
-      }
-      if ($mandaat) {
-        $values[$cid]['membership.'.$key] = CRM_Utils_Date::customFormat($mandaat['mandaat_datum'], $config->dateformatFull);
+      if (CRM_Tokens_AccessControl::accessSepaTokens()) {
+        $mid = $this->getMembership($cid, $mtype_id);
+        $mandaat = FALSE;
+        if (!empty($mid)) {
+          $mandaat = $this->findMandaat($mid);
+        }
+        if ($mandaat) {
+          $values[$cid]['membership.' . $key] = CRM_Utils_Date::customFormat($mandaat['mandaat_datum'], $config->dateformatFull);
+        }
       }
     }
   }

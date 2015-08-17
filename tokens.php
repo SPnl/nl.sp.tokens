@@ -58,6 +58,15 @@ function tokens_contact_id(&$values, $cids, $job = null, $tokens = array(), $con
 }
 
 /**
+ * Implementation of hook_civicrm_permission
+ * Voegt extra permissies toe die gebruikt worden door deze extensie.
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_permission
+ */
+function tokens_civicrm_permission(&$permissions) {
+  CRM_Tokens_AccessControl::getExtraPermissions($permissions);
+}
+
+/**
  * Implementation of hook_civicrm_config
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_config
