@@ -9,6 +9,7 @@ function tokens_civicrm_tokens(&$tokens) {
   CRM_Tokens_Afdeling::tokens($tokens);  
   CRM_Tokens_Membership::tokens($tokens);
   CRM_Tokens_Kaderfunctie::tokens($tokens);
+  CRM_Tokens_Contact::tokens($tokens);
 }
 
 function tokens_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = array(), $context = null) {  
@@ -28,6 +29,9 @@ function tokens_civicrm_tokenValues(&$values, $cids, $job = null, $tokens = arra
   
   $membership_tokens = CRM_Tokens_Membership::singleton();
   $membership_tokens->tokenValues($values, $cids, $job, $tokens, $context);
+
+  $contact_tokens = CRM_Tokens_Contact::singleton();
+  $contact_tokens->tokenValues($values, $cids, $job, $tokens, $context);
   
 }
 
