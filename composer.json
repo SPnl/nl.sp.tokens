@@ -1,0 +1,13 @@
+{
+    "name": "spnl/nl.sp.tokens",
+    "description": "Tokens for the SP",
+    "type": "civicrm-module",
+    "license": "AGPL-3.0",
+    "authors": [
+        {
+            "name": "Jaap Jansma",
+            "email": "helpdesk@civicoop.org"
+        }
+    ],
+    "require": {}
+}
